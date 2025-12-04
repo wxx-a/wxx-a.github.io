@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Autonomous Driving Simulator - Computational Thinking Practice</title>
     <style>
         * {
@@ -18,8 +18,9 @@
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
-            padding: 20px;
+            align-items: flex-start;
+            padding: 10px;
+            overflow-x: hidden;
         }
         
         .container {
@@ -30,41 +31,44 @@
             border-radius: 20px;
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            margin: 10px 0;
         }
         
         header {
             background: rgba(0, 0, 0, 0.3);
-            padding: 20px;
+            padding: 15px;
             text-align: center;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
+            font-size: 24px;
+            margin-bottom: 8px;
             color: #4fc3f7;
         }
         
         .subtitle {
-            font-size: 16px;
+            font-size: 14px;
             opacity: 0.8;
         }
         
         .content {
             display: flex;
-            min-height: 600px;
+            flex-direction: column;
+            min-height: auto;
         }
         
         .sidebar {
-            width: 300px;
+            width: 100%;
             background: rgba(0, 0, 0, 0.2);
-            padding: 20px;
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-right: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .main-content {
             flex: 1;
-            padding: 20px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
         }
@@ -72,17 +76,18 @@
         .ct-steps {
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            margin-top: 20px;
+            gap: 10px;
+            margin-top: 15px;
         }
         
         .ct-step {
-            padding: 15px;
+            padding: 12px;
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s;
             border-left: 4px solid transparent;
+            font-size: 14px;
         }
         
         .ct-step.active {
@@ -96,42 +101,53 @@
         
         .step-number {
             display: inline-block;
-            width: 25px;
-            height: 25px;
+            width: 22px;
+            height: 22px;
             background: #4fc3f7;
             border-radius: 50%;
             text-align: center;
-            line-height: 25px;
-            margin-right: 10px;
+            line-height: 22px;
+            margin-right: 8px;
             font-weight: bold;
+            font-size: 12px;
         }
         
         .simulation-area {
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 15px;
         }
         
         .parking-grid {
             flex: 1;
             display: grid;
-            grid-template-columns: repeat(10, 1fr);
-            grid-template-rows: repeat(8, 1fr);
-            gap: 3px;
+            grid-template-columns: repeat(10, minmax(0, 1fr));
+            grid-template-rows: repeat(8, minmax(0, 1fr));
+            gap: 2px;
             background: #1a237e;
-            padding: 15px;
-            border-radius: 10px;
+            padding: 10px;
+            border-radius: 8px;
             position: relative;
+            min-height: 300px;
+            overflow: auto;
         }
         
         .grid-cell {
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 5px;
+            border-radius: 3px;
             display: flex;
             justify-content: center;
             align-items: center;
             transition: all 0.3s;
+            font-size: 9px; /* 进一步减小字体大小 */
+            text-align: center;
+            padding: 2px;
+            min-height: 30px;
+            word-break: keep-all; /* 防止单词换行 */
+            white-space: nowrap; /* 防止文字换行 */
+            overflow: hidden; /* 隐藏溢出内容 */
+            text-overflow: ellipsis; /* 显示省略号 */
         }
         
         .grid-cell.entrance {
@@ -172,7 +188,7 @@
             align-items: center;
             color: white;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 9px; /* 同步减小汽车内文字大小 */
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
             transition: all 0.5s ease;
         }
@@ -184,20 +200,23 @@
         
         .controls {
             display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
+            gap: 8px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
         }
         
         button {
-            padding: 10px 15px;
+            padding: 8px 12px;
             border: none;
             border-radius: 5px;
             background: #4fc3f7;
             color: white;
             cursor: pointer;
             transition: all 0.3s;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
+            flex: 1;
+            min-width: 80px;
         }
         
         button:hover {
@@ -221,21 +240,24 @@
         
         .command-blocks {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
         
         .command-block {
-            padding: 8px 12px;
+            padding: 6px 10px;
             background: #7e57c2;
             color: white;
             border-radius: 5px;
             cursor: grab;
             user-select: none;
-            font-size: 14px;
+            font-size: 12px;
             transition: all 0.3s;
             border: 2px solid transparent;
+            flex: 1;
+            min-width: 80px;
+            text-align: center;
         }
         
         .command-block:hover {
@@ -249,14 +271,14 @@
         }
         
         .algorithm-area {
-            min-height: 100px;
+            min-height: 80px;
             border: 2px dashed rgba(255, 255, 255, 0.3);
             border-radius: 5px;
-            padding: 10px;
-            margin-bottom: 15px;
+            padding: 8px;
+            margin-bottom: 12px;
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 6px;
             align-items: flex-start;
             transition: all 0.3s;
         }
@@ -267,7 +289,7 @@
         }
         
         .algorithm-step {
-            padding: 8px 12px;
+            padding: 6px 10px;
             background: #00c853;
             color: white;
             border-radius: 5px;
@@ -275,6 +297,7 @@
             align-items: center;
             gap: 5px;
             animation: popIn 0.3s ease;
+            font-size: 12px;
         }
         
         .algorithm-step.executing {
@@ -306,22 +329,22 @@
             border: none;
             color: white;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 10px;
             padding: 0;
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             display: flex;
             justify-content: center;
             align-items: center;
         }
         
         .status {
-            padding: 10px;
+            padding: 8px;
             background: rgba(0, 0, 0, 0.3);
             border-radius: 5px;
-            margin-top: 10px;
-            font-size: 14px;
-            min-height: 50px;
+            margin-top: 8px;
+            font-size: 12px;
+            min-height: 40px;
             display: flex;
             align-items: center;
         }
@@ -337,28 +360,28 @@
         }
         
         h2 {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             color: #4fc3f7;
-            font-size: 22px;
-        }
-        
-        h3 {
-            margin: 15px 0 10px 0;
-            color: #bb86fc;
             font-size: 18px;
         }
         
+        h3 {
+            margin: 12px 0 8px 0;
+            color: #bb86fc;
+            font-size: 16px;
+        }
+        
         p {
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             line-height: 1.5;
-            font-size: 14px;
+            font-size: 12px;
         }
         
         .instruction-text {
             background: rgba(0, 0, 0, 0.2);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
         }
         
         .step-content {
@@ -378,34 +401,196 @@
         .visual-demo {
             display: flex;
             justify-content: space-around;
-            margin: 20px 0;
+            margin: 15px 0;
             flex-wrap: wrap;
-            gap: 20px;
+            gap: 15px;
         }
         
         .demo-item {
             flex: 1;
-            min-width: 200px;
+            min-width: 150px;
             text-align: center;
             background: rgba(0, 0, 0, 0.2);
-            padding: 15px;
-            border-radius: 10px;
+            padding: 12px;
+            border-radius: 8px;
         }
         
         .demo-icon {
-            font-size: 40px;
-            margin-bottom: 10px;
+            font-size: 30px;
+            margin-bottom: 8px;
             color: #4fc3f7;
         }
         
         .execution-controls {
             display: flex;
-            gap: 10px;
-            margin-top: 10px;
+            gap: 8px;
+            margin-top: 8px;
         }
         
         .execution-controls button {
             flex: 1;
+        }
+        
+        /* 移动设备优化 */
+        @media (min-width: 768px) {
+            body {
+                align-items: center;
+                padding: 20px;
+            }
+            
+            .container {
+                margin: 0;
+            }
+            
+            .content {
+                flex-direction: row;
+                min-height: 600px;
+            }
+            
+            .sidebar {
+                width: 300px;
+                border-right: 1px solid rgba(255, 255, 255, 0.1);
+                border-bottom: none;
+            }
+            
+            h1 {
+                font-size: 28px;
+            }
+            
+            .subtitle {
+                font-size: 16px;
+            }
+            
+            .ct-step {
+                padding: 15px;
+                font-size: inherit;
+            }
+            
+            .step-number {
+                width: 25px;
+                height: 25px;
+                line-height: 25px;
+                font-size: inherit;
+            }
+            
+            .parking-grid {
+                padding: 15px;
+                border-radius: 10px;
+                gap: 3px;
+                min-height: auto;
+            }
+            
+            .grid-cell {
+                font-size: 11px; /* 大屏幕上适当增大字体 */
+                border-radius: 5px;
+                white-space: nowrap; /* 大屏幕也防止换行 */
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            
+            .car {
+                font-size: 11px; /* 同步调整汽车内文字大小 */
+            }
+            
+            button {
+                padding: 10px 15px;
+                font-size: 14px;
+                flex: none;
+            }
+            
+            .command-block {
+                padding: 8px 12px;
+                font-size: 14px;
+                flex: none;
+            }
+            
+            .algorithm-area {
+                min-height: 100px;
+                padding: 10px;
+            }
+            
+            .algorithm-step {
+                padding: 8px 12px;
+                font-size: inherit;
+            }
+            
+            .remove-step {
+                font-size: 12px;
+                width: 16px;
+                height: 16px;
+            }
+            
+            .status {
+                padding: 10px;
+                font-size: 14px;
+                min-height: 50px;
+            }
+            
+            h2 {
+                font-size: 22px;
+                margin-bottom: 15px;
+            }
+            
+            h3 {
+                font-size: 18px;
+                margin: 15px 0 10px 0;
+            }
+            
+            p {
+                font-size: 14px;
+                margin-bottom: 10px;
+            }
+            
+            .instruction-text {
+                padding: 15px;
+            }
+            
+            .demo-item {
+                min-width: 200px;
+                padding: 15px;
+            }
+            
+            .demo-icon {
+                font-size: 40px;
+            }
+        }
+        
+        /* 小屏幕手机优化 */
+        @media (max-width: 480px) {
+            .controls {
+                justify-content: center;
+            }
+            
+            button {
+                min-width: 70px;
+                font-size: 11px;
+            }
+            
+            .command-block {
+                min-width: 70px;
+                font-size: 11px;
+            }
+            
+            .grid-cell {
+                min-height: 25px;
+                font-size: 8px; /* 小屏幕上使用更小的字体 */
+            }
+            
+            .car {
+                font-size: 8px; /* 同步调整汽车内文字大小 */
+            }
+            
+            h1 {
+                font-size: 20px;
+            }
+            
+            h2 {
+                font-size: 16px;
+            }
+            
+            h3 {
+                font-size: 14px;
+            }
         }
     </style>
 </head>
@@ -540,7 +725,7 @@
         let carState = {
             x: parkingLayout.entrance.x,
             y: parkingLayout.entrance.y,
-            direction: 'east', // east, south, west, north
+            direction: 'east',
             path: [],
             currentStep: 0,
             isRunning: false
@@ -575,7 +760,7 @@
             }
             
             // Place car at entrance
-            placeCar(carState.x, carState.y, carState.direction);
+            placeCar(parkingLayout.entrance.x, parkingLayout.entrance.y);
         }
 
         // Place car
@@ -1002,7 +1187,7 @@
             // Highlight current position
             const currentCell = document.querySelector(`.grid-cell[data-x="${carState.x}"][data-y="${carState.y}"]`);
             if (currentCell) {
-                currentCell.classList.add('current');
+                    currentCell.classList.add('current');
             }
         }
 
