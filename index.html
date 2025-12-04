@@ -140,14 +140,14 @@
             justify-content: center;
             align-items: center;
             transition: all 0.3s;
-            font-size: 9px; /* 进一步减小字体大小 */
+            font-size: clamp(6px, 1.8vmin, 12px); /* 使用clamp函数实现响应式字体大小 */
             text-align: center;
             padding: 2px;
             min-height: 30px;
-            word-break: keep-all; /* 防止单词换行 */
-            white-space: nowrap; /* 防止文字换行 */
-            overflow: hidden; /* 隐藏溢出内容 */
-            text-overflow: ellipsis; /* 显示省略号 */
+            word-break: keep-all;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         .grid-cell.entrance {
@@ -188,7 +188,7 @@
             align-items: center;
             color: white;
             font-weight: bold;
-            font-size: 9px; /* 同步减小汽车内文字大小 */
+            font-size: clamp(6px, 1.8vmin, 12px);
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
             transition: all 0.5s ease;
         }
@@ -250,7 +250,7 @@
             background: #7e57c2;
             color: white;
             border-radius: 5px;
-            cursor: grab;
+            cursor: pointer;
             user-select: none;
             font-size: 12px;
             transition: all 0.3s;
@@ -265,9 +265,8 @@
             transform: scale(1.05);
         }
         
-        .command-block.dragging {
-            opacity: 0.5;
-            border: 2px dashed #4fc3f7;
+        .command-block:active {
+            transform: scale(0.95);
         }
         
         .algorithm-area {
@@ -281,11 +280,6 @@
             gap: 6px;
             align-items: flex-start;
             transition: all 0.3s;
-        }
-        
-        .algorithm-area.drag-over {
-            border-color: #4fc3f7;
-            background: rgba(79, 195, 247, 0.1);
         }
         
         .algorithm-step {
@@ -481,15 +475,15 @@
             }
             
             .grid-cell {
-                font-size: 11px; /* 大屏幕上适当增大字体 */
+                font-size: clamp(8px, 1.5vmin, 14px);
                 border-radius: 5px;
-                white-space: nowrap; /* 大屏幕也防止换行 */
+                white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
             }
             
             .car {
-                font-size: 11px; /* 同步调整汽车内文字大小 */
+                font-size: clamp(8px, 1.5vmin, 14px);
             }
             
             button {
@@ -573,11 +567,11 @@
             
             .grid-cell {
                 min-height: 25px;
-                font-size: 8px; /* 小屏幕上使用更小的字体 */
+                font-size: clamp(6px, 1.8vmin, 10px);
             }
             
             .car {
-                font-size: 8px; /* 同步调整汽车内文字大小 */
+                font-size: clamp(6px, 1.8vmin, 10px);
             }
             
             h1 {
@@ -688,16 +682,16 @@
                     
                     <h3>Available Commands</h3>
                     <div class="command-blocks" id="commandBlocks">
-                        <div class="command-block" draggable="true" data-command="forward1">Move Forward 1</div>
-                        <div class="command-block" draggable="true" data-command="forward2">Move Forward 2</div>
-                        <div class="command-block" draggable="true" data-command="forward3">Move Forward 3</div>
-                        <div class="command-block" draggable="true" data-command="turnLeft">Turn Left</div>
-                        <div class="command-block" draggable="true" data-command="turnRight">Turn Right</div>
-                        <div class="command-block" draggable="true" data-command="checkObstacle">Check Obstacle</div>
-                        <div class="command-block" draggable="true" data-command="wait">Wait</div>
+                        <div class="command-block" data-command="forward1">Move Forward 1</div>
+                        <div class="command-block" data-command="forward2">Move Forward 2</div>
+                        <div class="command-block" data-command="forward3">Move Forward 3</div>
+                        <div class="command-block" data-command="turnLeft">Turn Left</div>
+                        <div class="command-block" data-command="turnRight">Turn Right</div>
+                        <div class="command-block" data-command="checkObstacle">Check Obstacle</div>
+                        <div class="command-block" data-command="wait">Wait</div>
                     </div>
                     
-                    <h3>Your Algorithm <span style="font-size: 14px; font-weight: normal;">(Drag commands here)</span></h3>
+                    <h3>Your Algorithm <span style="font-size: 14px; font-weight: normal;">(Click commands above)</span></h3>
                     <div class="algorithm-area" id="algorithmArea">
                         <!-- Algorithm steps will be displayed here -->
                     </div>
@@ -806,51 +800,15 @@
             });
         }
 
-        // Fixed drag and drop functionality
-        function setupDragAndDrop() {
+        // Setup click functionality for command blocks
+        function setupClickCommands() {
             const commandBlocks = document.querySelectorAll('.command-block');
-            const algorithmArea = document.getElementById('algorithmArea');
             
-            // Set drag events for each command block
+            // Add click event for each command block
             commandBlocks.forEach(block => {
-                block.addEventListener('dragstart', (e) => {
-                    e.dataTransfer.setData('text/plain', block.dataset.command);
-                    block.classList.add('dragging');
-                    setTimeout(() => {
-                        block.style.display = 'none';
-                    }, 0);
-                });
-                
-                block.addEventListener('dragend', (e) => {
-                    block.classList.remove('dragging');
-                    block.style.display = 'block';
-                });
-            });
-            
-            // Algorithm area drag and drop events
-            algorithmArea.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                algorithmArea.classList.add('drag-over');
-            });
-            
-            algorithmArea.addEventListener('dragleave', (e) => {
-                // Only remove style when mouse leaves algorithm area
-                if (!algorithmArea.contains(e.relatedTarget)) {
-                    algorithmArea.classList.remove('drag-over');
-                }
-            });
-            
-            algorithmArea.addEventListener('drop', (e) => {
-                e.preventDefault();
-                algorithmArea.classList.remove('drag-over');
-                
-                const command = e.dataTransfer.getData('text/plain');
-                addCommandToAlgorithm(command);
-                
-                // Restore command block display
-                commandBlocks.forEach(block => {
-                    block.style.display = 'block';
-                    block.classList.remove('dragging');
+                block.addEventListener('click', () => {
+                    const command = block.dataset.command;
+                    addCommandToAlgorithm(command);
                 });
             });
         }
@@ -940,6 +898,8 @@
         // Execute a single command
         function executeCommand(command) {
             const algorithmSteps = document.querySelectorAll('.algorithm-step');
+            if (algorithmSteps.length === 0) return false;
+            
             const currentStep = algorithmSteps[carState.currentStep];
             
             // Mark current step as executing
@@ -1097,6 +1057,10 @@
                 if (carState.isRunning) {
                     setTimeout(executeStepByStep, 1000);
                 }
+            } else {
+                carState.isRunning = false;
+                document.getElementById('runSimulation').disabled = false;
+                document.getElementById('stepSimulation').disabled = true;
             }
         }
 
@@ -1163,6 +1127,10 @@
                     } else {
                         updateStatus('Ready for next step. Click "Step Forward" to continue.', true);
                     }
+                } else {
+                    carState.isRunning = false;
+                    document.getElementById('runSimulation').disabled = false;
+                    document.getElementById('stepSimulation').disabled = true;
                 }
             }
         }
@@ -1187,7 +1155,7 @@
             // Highlight current position
             const currentCell = document.querySelector(`.grid-cell[data-x="${carState.x}"][data-y="${carState.y}"]`);
             if (currentCell) {
-                    currentCell.classList.add('current');
+                currentCell.classList.add('current');
             }
         }
 
@@ -1233,7 +1201,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             initializeParkingGrid();
             setupStepSwitcher();
-            setupDragAndDrop();
+            setupClickCommands();
             
             // Add button event listeners
             document.getElementById('runSimulation').addEventListener('click', runSimulation);
